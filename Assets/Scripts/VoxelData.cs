@@ -5,6 +5,15 @@ using UnityEngine;
 
 public static class VoxelData
 {
+    public static readonly int ChunkWidth = 5;
+    public static readonly int ChunkHeight = 15;
+    public static readonly int WorldWidthInChunks = 50;
+    public static readonly int ViewDistanceInChunks = 8;
+    public static int WorldWidthInBlocks
+    {
+        get { return WorldWidthInChunks * ChunkWidth; }
+    }
+
 
     public static readonly int TextureAtlasSizeInBlocks = 4;
     public static float NormalizedBlockTextureSize

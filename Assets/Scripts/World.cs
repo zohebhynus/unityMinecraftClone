@@ -4,7 +4,24 @@ public class World : MonoBehaviour
 {
     public Material material;
     public BlockType[] blockTypes;
-    
+
+    private Chunk chunk;
+
+    private void Start()
+    {
+        GenerateWorld();
+    }
+
+    private void GenerateWorld() 
+    {
+        CreateChunk(new Vector2(0, 0));
+    }
+
+    private void CreateChunk(Vector2 chunkCoord)
+    {
+        chunk = new Chunk(chunkCoord, this);
+    }
+
 }
 
 [System.Serializable]

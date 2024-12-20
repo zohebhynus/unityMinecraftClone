@@ -1,18 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
-
-public class Chunck : MonoBehaviour
+public class Chunk
 {
 
     private MeshRenderer m_Renderer;
     private MeshFilter m_Filter;
+    private GameObject m_ChunkObject;
 
     private BlockType[,,] chunkMap;
     private List<Vector3> m_Vertices = new List<Vector3>();
@@ -20,42 +14,48 @@ public class Chunck : MonoBehaviour
     private List<Vector2> m_Uvs = new List<Vector2>();
     private int m_VertexIndex = 0;
 
-    public int ChunkWidth = 1;
-    private int ChunkWidthHalf;
+    private World m_World;
 
-    public int ChunkHeight = 1;
-    private int ChunkHeightHalf;
-
-    private World world;
+    public Vector2 ChunkCoord;
 
 
-
-
-    void Start()
+    public Chunk(Vector2 chunkCoord, World world)
     {
-        m_Renderer = GetComponent<MeshRenderer>();
-        m_Filter = GetComponent<MeshFilter>();
-        world = GameObject.Find("World").GetComponent<World>();
+        ChunkCoord = chunkCoord;
+        m_ChunkObject = new GameObject();
+        // y coord is used as z
+        m_ChunkObject.transform.position = new Vector3(ChunkCoord.x * VoxelData.ChunkWidth, 0.0f, ChunkCoord.y * VoxelData.ChunkWidth);
 
-        ChunkWidthHalf = ChunkWidth / 2;
-        ChunkHeightHalf = ChunkHeight / 2;
+        m_Renderer = m_ChunkObject.AddComponent<MeshRenderer>();
+        m_Filter = m_ChunkObject.AddComponent<MeshFilter>();
+        m_World = world;
+
+        m_ChunkObject.transform.SetParent(world.transform);
+        m_Renderer.material = world.material;
+
+        m_ChunkObject.name = ChunkCoord.x + ", " + ChunkCoord.y;
 
         GenerateChunkMap();
         CreateChunkVertexData();
         CreateChunkMesh();
-        
     }
 
-    void Update()
+    public bool isActive
     {
-        
+        get { return m_ChunkObject.activeSelf; }
+        set { m_ChunkObject.SetActive(value); }
     }
 
-    void AddCubeVertex(Vector3 chunkPosition)
+    Vector3 Position 
+    {
+        get { return m_ChunkObject.transform.position; }
+    }
+
+    void AddVoxelVertex(Vector3 chunkPosition)
     {
         for(int i = 0; i < 6; i++)
         {
-            if(!isSolidCube(chunkPosition + VoxelData.voxelNeighbours[i]))
+            if(!isSolidVoxel(chunkPosition + VoxelData.voxelNeighbours[i]))
             {
                 m_Vertices.Add(chunkPosition + VoxelData.voxelVerts[(i * 4) + 0]);
                 m_Vertices.Add(chunkPosition + VoxelData.voxelVerts[(i * 4) + 1]);
@@ -77,12 +77,12 @@ public class Chunck : MonoBehaviour
 
     }
 
-    bool isSolidCube(Vector3 position)
+    bool isSolidVoxel(Vector3 position)
     {
         int x = (int)position.x;
         int y = (int)position.y;
         int z = (int)position.z;
-        if(x < 0 || x >= ChunkWidth || y < 0 || y >= ChunkHeight || z < 0 || z >= ChunkWidth)
+        if(x < 0 || x >= VoxelData.ChunkWidth || y < 0 || y >= VoxelData.ChunkHeight || z < 0 || z >= VoxelData.ChunkWidth)
         {
             return false;
         }
@@ -91,25 +91,25 @@ public class Chunck : MonoBehaviour
 
     void GenerateChunkMap()
     {
-        chunkMap = new BlockType[ChunkWidth, ChunkHeight, ChunkWidth];
+        chunkMap = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
-        for(int x = 0; x < ChunkWidth; x++)
+        for(int x = 0; x < VoxelData.ChunkWidth; x++)
         {
-            for(int y = 0; y < ChunkHeight; y++) 
+            for(int y = 0; y < VoxelData.ChunkHeight; y++) 
             {
-                for(int z = 0; z < ChunkWidth; z++) 
+                for(int z = 0; z < VoxelData.ChunkWidth; z++) 
                 {
                     if(y < 1)
                     {
-                        chunkMap[x, y, z] = world.blockTypes[1];
+                        chunkMap[x, y, z] = m_World.blockTypes[1];
                     }
-                    else if(y == ChunkHeight - 1)
+                    else if(y == VoxelData.ChunkHeight - 1)
                     {
-                        chunkMap[x, y, z] = world.blockTypes[2];
+                        chunkMap[x, y, z] = m_World.blockTypes[2];
                     }
                     else
                     {
-                        chunkMap[x, y, z] = world.blockTypes[0];
+                        chunkMap[x, y, z] = m_World.blockTypes[0];
                     }
                 }
             }
@@ -118,9 +118,6 @@ public class Chunck : MonoBehaviour
 
     private void CreateChunkMesh()
     {
-
-        Debug.Log(m_Vertices.Count);
-        Debug.Log(m_Triangles.Count);
 
         // Create the mesh
         Mesh mesh = new Mesh();
@@ -138,18 +135,18 @@ public class Chunck : MonoBehaviour
     void CreateChunkVertexData()
     {
 
-        for (int x = 0; x < ChunkWidth; x++)
+        for (int x = 0; x < VoxelData.ChunkWidth; x++)
         {
-            for (int y = 0; y < ChunkHeight; y++)
+            for (int y = 0; y < VoxelData.ChunkHeight; y++)
             {
-                for (int z = 0; z < ChunkWidth; z++)
+                for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
                     if (!chunkMap[x, y, z].IsSolid)
                     {
                         continue;
                     }
 
-                    AddCubeVertex(new Vector3(x, y, z));
+                    AddVoxelVertex(new Vector3(x, y, z));
                 }
             }
         }
