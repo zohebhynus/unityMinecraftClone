@@ -5,6 +5,7 @@ public class World : MonoBehaviour
     public Material material;
     public BlockType[] blockTypes;
 
+    private Chunk[,] allChunks = new Chunk[VoxelData.WorldWidthInChunks, VoxelData.WorldWidthInChunks];
     private Chunk chunk;
 
     private void Start()
@@ -14,12 +15,18 @@ public class World : MonoBehaviour
 
     private void GenerateWorld() 
     {
-        CreateChunk(new Vector2(0, 0));
+        for(int x = 0; x < VoxelData.WorldWidthInChunks; x++) 
+        {
+            for(int y = 0; y < VoxelData.WorldWidthInChunks; y++)
+            {
+                CreateChunk(new Vector2Int(x, y));
+            }
+        }
     }
 
-    private void CreateChunk(Vector2 chunkCoord)
+    private void CreateChunk(Vector2Int chunkCoord)
     {
-        chunk = new Chunk(chunkCoord, this);
+        allChunks[chunkCoord.x, chunkCoord.y] = new Chunk(chunkCoord, this);
     }
 
 }
