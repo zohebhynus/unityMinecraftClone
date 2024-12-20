@@ -1,19 +1,23 @@
 using UnityEngine;
+using UnityEngine.LightTransport;
 
 public class World : MonoBehaviour
 {
+    public Transform Player;
+    public Vector3 SpawnPoint;
+
     public Material material;
     public BlockType[] blockTypes;
 
-    private Chunk[,] allChunks = new Chunk[VoxelData.WorldWidthInChunks, VoxelData.WorldWidthInChunks];
-    private Chunk chunk;
+    public Chunk[,] allChunks = new Chunk[VoxelData.WorldWidthInChunks, VoxelData.WorldWidthInChunks];
 
     private void Start()
     {
-        GenerateWorld();
+        GenerateWorldData();
+        GenerateWorldMesh();
     }
 
-    private void GenerateWorld() 
+    private void GenerateWorldData() 
     {
         for(int x = 0; x < VoxelData.WorldWidthInChunks; x++) 
         {
@@ -24,9 +28,48 @@ public class World : MonoBehaviour
         }
     }
 
+    private void GenerateWorldMesh()
+    {
+        for (int x = 0; x < VoxelData.WorldWidthInChunks; x++)
+        {
+            for (int y = 0; y < VoxelData.WorldWidthInChunks; y++)
+            {
+                allChunks[x, y].ChunkMeshFunctions();
+            }
+        }
+    }
+
     private void CreateChunk(Vector2Int chunkCoord)
     {
         allChunks[chunkCoord.x, chunkCoord.y] = new Chunk(chunkCoord, this);
+    }
+
+    public bool IsChunkCoordInWorld(Vector2Int chunkCoord)
+    {
+        if (chunkCoord.x >= 0 && chunkCoord.x < VoxelData.WorldWidthInChunks && chunkCoord.y >= 0 && chunkCoord.y < VoxelData.WorldWidthInChunks)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public byte GetVoxel(Vector3 position)
+    {
+        if (position.y == (VoxelData.ChunkHeight/2))
+        {
+            return 0;
+        }
+        else if(position.y < VoxelData.ChunkHeight && position.y > VoxelData.ChunkHeight / 2)
+        {
+            return 3;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
 }

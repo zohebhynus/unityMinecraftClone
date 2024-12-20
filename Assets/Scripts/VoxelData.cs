@@ -5,9 +5,9 @@ using UnityEngine;
 
 public static class VoxelData
 {
-    public static readonly int ChunkWidth = 5;
-    public static readonly int ChunkHeight = 15;
-    public static readonly int WorldWidthInChunks = 50;
+    public static readonly int ChunkWidth = 16;
+    public static readonly int ChunkHeight = 32;
+    public static readonly int WorldWidthInChunks = 1;
     public static readonly int ViewDistanceInChunks = 8;
     public static int WorldWidthInBlocks
     {
@@ -78,6 +78,14 @@ public static class VoxelData
         new Vector2(1, 0),
         new Vector2(1, 1),
         new Vector2(0, 1)
+    };
+
+    public static readonly Vector2Int[] ChunkDirections = new Vector2Int[4]
+    {
+        new Vector2Int( 1,  0),
+        new Vector2Int(-1,  0),
+        new Vector2Int( 0,  1),
+        new Vector2Int( 0, -1)
     };
 
 }

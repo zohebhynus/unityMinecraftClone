@@ -8,7 +8,7 @@ public class Chunk
     private MeshFilter m_Filter;
     private GameObject m_ChunkObject;
 
-    private BlockType[,,] chunkMap;
+    private byte[,,] chunkMap;
     private List<Vector3> m_Vertices = new List<Vector3>();
     private List<int> m_Triangles = new List<int>();
     private List<Vector2> m_Uvs = new List<Vector2>();
@@ -16,10 +16,10 @@ public class Chunk
 
     private World m_World;
 
-    public Vector2 ChunkCoord;
+    public Vector2Int ChunkCoord;
 
 
-    public Chunk(Vector2 chunkCoord, World world)
+    public Chunk(Vector2Int chunkCoord, World world)
     {
         ChunkCoord = chunkCoord;
         m_ChunkObject = new GameObject();
@@ -36,14 +36,18 @@ public class Chunk
         m_ChunkObject.name = ChunkCoord.x + ", " + ChunkCoord.y;
 
         GenerateChunkMap();
-        CreateChunkVertexData();
-        CreateChunkMesh();
     }
 
     public bool isActive
     {
         get { return m_ChunkObject.activeSelf; }
         set { m_ChunkObject.SetActive(value); }
+    }
+
+    public void ChunkMeshFunctions()
+    {
+        CreateChunkVertexData();
+        CreateChunkMesh();
     }
 
     Vector3 Position 
@@ -62,8 +66,8 @@ public class Chunk
                 m_Vertices.Add(chunkPosition + VoxelData.voxelVerts[(i * 4) + 2]);
                 m_Vertices.Add(chunkPosition + VoxelData.voxelVerts[(i * 4) + 3]);
 
-                //m_Uvs.AddRange(VoxelData.voxelFaceUvs);
-                AddTexture(chunkMap[(int)chunkPosition.x, (int)chunkPosition.y, (int)chunkPosition.z].GetTextureID(i));
+                byte blockId = chunkMap[(int)chunkPosition.x, (int)chunkPosition.y, (int)chunkPosition.z];
+                AddTexture(m_World.blockTypes[blockId].GetTextureID(i));
 
                 m_Triangles.Add(0 + m_VertexIndex);
                 m_Triangles.Add(3 + m_VertexIndex);
@@ -82,16 +86,44 @@ public class Chunk
         int x = (int)position.x;
         int y = (int)position.y;
         int z = (int)position.z;
-        if(x < 0 || x >= VoxelData.ChunkWidth || y < 0 || y >= VoxelData.ChunkHeight || z < 0 || z >= VoxelData.ChunkWidth)
+        if(isWithinChunk(x, y, z))
+        {
+            return m_World.blockTypes[chunkMap[x, y, z]].IsSolid;
+        }
+        else
+        {
+            return m_World.blockTypes[m_World.GetVoxel(position + Position)].IsSolid;
+        }
+        
+    }
+
+
+    bool isWithinChunk(int x, int y, int z)
+    {
+        if (x < 0 || x > VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < 0 || z >  VoxelData.ChunkWidth - 1)
         {
             return false;
         }
-        return chunkMap[(int)position.x, (int)position.y, (int)position.z].IsSolid;
+        else
+        {
+            return true;
+        }
     }
+    //bool isWithinChunk(int x, int y, int z)
+    //{
+    //    if (x < ChunkCoord.x || x > ChunkCoord.x + VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < ChunkCoord.y || z > ChunkCoord.y + VoxelData.ChunkWidth - 1)
+    //    {
+    //        return false;
+    //    }
+    //    else 
+    //    {
+    //        return true;
+    //    }
+    //}
 
     void GenerateChunkMap()
     {
-        chunkMap = new BlockType[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+        chunkMap = new byte[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
         for(int x = 0; x < VoxelData.ChunkWidth; x++)
         {
@@ -99,18 +131,7 @@ public class Chunk
             {
                 for(int z = 0; z < VoxelData.ChunkWidth; z++) 
                 {
-                    if(y < 1)
-                    {
-                        chunkMap[x, y, z] = m_World.blockTypes[1];
-                    }
-                    else if(y == VoxelData.ChunkHeight - 1)
-                    {
-                        chunkMap[x, y, z] = m_World.blockTypes[2];
-                    }
-                    else
-                    {
-                        chunkMap[x, y, z] = m_World.blockTypes[0];
-                    }
+                    chunkMap[x, y, z] = m_World.GetVoxel(new Vector3(x, y, z) + Position);             
                 }
             }
         }
@@ -141,12 +162,10 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    if (!chunkMap[x, y, z].IsSolid)
+                    if (m_World.blockTypes[chunkMap[x, y, z]].IsSolid)
                     {
-                        continue;
+                        AddVoxelVertex(new Vector3(x, y, z));
                     }
-
-                    AddVoxelVertex(new Vector3(x, y, z));
                 }
             }
         }
