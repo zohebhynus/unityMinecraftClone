@@ -669,6 +669,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5fa1fc03dcee8419540cabad8830eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Player: {fileID: 0}
+  SpawnPoint: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 44d9dc8bba710ad47a15cd169cddb5c1, type: 2}
   blockTypes:
   - Name: Dirt
@@ -695,6 +697,14 @@ MonoBehaviour:
     RightFaceTextureID: 5
     TopFaceTextureID: 6
     BottomFaceTextureID: 6
+  - Name: Air
+    IsSolid: 0
+    FrontFaceTextureID: 0
+    BackFaceTextureID: 0
+    LeftFaceTextureID: 0
+    RightFaceTextureID: 0
+    TopFaceTextureID: 0
+    BottomFaceTextureID: 0
 --- !u!4 &2000520696
 Transform:
   m_ObjectHideFlags: 0
