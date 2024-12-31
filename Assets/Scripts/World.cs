@@ -1,5 +1,6 @@
 using UnityEngine;
-using UnityEngine.LightTransport;
+using System.Collections.Generic;
+
 
 public class World : MonoBehaviour
 {
@@ -11,37 +12,78 @@ public class World : MonoBehaviour
 
     public Chunk[,] allChunks = new Chunk[VoxelData.WorldWidthInChunks, VoxelData.WorldWidthInChunks];
 
+    private Vector2Int playerLastChunkCoord;
+    private List<Vector2Int> activeChunkCoords = new List<Vector2Int>();
+
     private void Start()
     {
-        GenerateWorldData();
-        GenerateWorldMesh();
+        Player.position = SpawnPoint;
+        playerLastChunkCoord = getChunkCoordFromVector3(Player.transform.position);
+        updateActiveChunks();
     }
 
-    private void GenerateWorldData() 
+    private void Update()
     {
-        for(int x = 0; x < VoxelData.WorldWidthInChunks; x++) 
+        if(!getChunkCoordFromVector3(Player.transform.position).Equals(playerLastChunkCoord)) 
         {
-            for(int y = 0; y < VoxelData.WorldWidthInChunks; y++)
-            {
-                CreateChunk(new Vector2Int(x, y));
-            }
+            updateActiveChunks();
         }
     }
 
-    private void GenerateWorldMesh()
+    private void updateActiveChunks()
     {
-        for (int x = 0; x < VoxelData.WorldWidthInChunks; x++)
+        int playerChunkX = Mathf.FloorToInt(Player.position.x / VoxelData.ChunkWidth);
+        int playerChunkZ = Mathf.FloorToInt(Player.position.z / VoxelData.ChunkWidth);
+
+        List<Vector2Int> previousActiveChunksCoords = new List<Vector2Int>(activeChunkCoords);
+
+        for(int x = playerChunkX - VoxelData.ViewDistanceInChunks / 2; x < playerChunkX + VoxelData.ViewDistanceInChunks/2; x++) 
         {
-            for (int y = 0; y < VoxelData.WorldWidthInChunks; y++)
+            for(int z = playerChunkZ - VoxelData.ViewDistanceInChunks / 2; z < playerChunkZ + VoxelData.ViewDistanceInChunks / 2; z++)
             {
-                allChunks[x, y].ChunkMeshFunctions();
+                Vector2Int chunkCoord = new Vector2Int(x, z);
+                if (IsChunkCoordInWorld(chunkCoord))
+                {
+                    if (allChunks[x, z] == null)
+                    {
+                        CreateChunk(chunkCoord);
+                        activeChunkCoords.Add(chunkCoord);
+                    }
+                    else if (!allChunks[x, z].isActive)
+                    {
+                        allChunks[x, z].isActive = true;
+                        activeChunkCoords.Add(chunkCoord);
+                    }
+
+                    for(int i = 0; i < previousActiveChunksCoords.Count; i++)
+                    {
+                        if (previousActiveChunksCoords[i].x == x && previousActiveChunksCoords[i].y == z)
+                        {
+                            previousActiveChunksCoords.RemoveAt(i);
+                        }
+                    }
+                }
             }
+        }
+
+        foreach(Vector2Int chunkCoord in previousActiveChunksCoords)
+        {
+            allChunks[chunkCoord.x, chunkCoord.y].isActive = false;
         }
     }
 
     private void CreateChunk(Vector2Int chunkCoord)
     {
         allChunks[chunkCoord.x, chunkCoord.y] = new Chunk(chunkCoord, this);
+        allChunks[chunkCoord.x, chunkCoord.y].ChunkMeshFunctions();
+    }
+
+    private Vector2Int getChunkCoordFromVector3(Vector3 position)
+    {
+        int x = Mathf.FloorToInt(position.x / VoxelData.ChunkWidth);
+        int z = Mathf.FloorToInt(position.z / VoxelData.ChunkWidth);
+
+        return new Vector2Int(x, z);
     }
 
     public bool IsChunkCoordInWorld(Vector2Int chunkCoord)
