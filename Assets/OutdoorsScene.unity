@@ -704,13 +704,13 @@ MonoBehaviour:
   SpawnPoint: {x: 20, y: 0, z: 20}
   material: {fileID: 2100000, guid: 44d9dc8bba710ad47a15cd169cddb5c1, type: 2}
   blockTypes:
-  - Name: Dirt
+  - Name: Grass
     IsSolid: 1
-    FrontFaceTextureID: 1
-    BackFaceTextureID: 1
-    LeftFaceTextureID: 1
-    RightFaceTextureID: 1
-    TopFaceTextureID: 1
+    FrontFaceTextureID: 2
+    BackFaceTextureID: 2
+    LeftFaceTextureID: 2
+    RightFaceTextureID: 2
+    TopFaceTextureID: 7
     BottomFaceTextureID: 1
   - Name: Stone
     IsSolid: 1
