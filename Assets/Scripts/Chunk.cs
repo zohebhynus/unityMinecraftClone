@@ -8,7 +8,7 @@ public class Chunk
     private MeshFilter m_Filter;
     private GameObject m_ChunkObject;
 
-    private byte[,,] chunkMap;
+    public byte[,,] chunkMap;
     private List<Vector3> m_Vertices = new List<Vector3>();
     private List<int> m_Triangles = new List<int>();
     private List<Vector2> m_Uvs = new List<Vector2>();

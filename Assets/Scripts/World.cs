@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class World : MonoBehaviour
 {
     public Transform Player;
-    public Vector3 SpawnPoint;
+    private Vector3 SpawnPoint;
     public int Seed;
     public BiomeAttributes biome;
 
@@ -20,6 +20,7 @@ public class World : MonoBehaviour
     private void Start()
     {
         Random.InitState(Seed);
+        SpawnPoint = new Vector3((VoxelData.WorldWidthInChunks * VoxelData.ChunkWidth) / 2.0f, VoxelData.ChunkHeight - 20.0f, (VoxelData.WorldWidthInChunks * VoxelData.ChunkWidth) / 2.0f);
         Player.position = SpawnPoint;
         playerLastChunkCoord = getChunkCoordFromVector3(Player.transform.position);
         updateActiveChunks();
@@ -27,10 +28,10 @@ public class World : MonoBehaviour
 
     private void Update()
     {
-        if(!getChunkCoordFromVector3(Player.transform.position).Equals(playerLastChunkCoord)) 
-        {
-            updateActiveChunks();
-        }
+        //if(!getChunkCoordFromVector3(Player.transform.position).Equals(playerLastChunkCoord)) 
+        //{
+        //    updateActiveChunks();
+        //}
     }
 
     private void updateActiveChunks()
@@ -107,6 +108,21 @@ public class World : MonoBehaviour
             return true;
         else
             return false;
+    }
+
+    public bool CheckForVoxel(float x, float y, float z)
+    {
+        int xCheck = Mathf.FloorToInt(x);
+        int yCheck = Mathf.FloorToInt(y);
+        int zCheck = Mathf.FloorToInt(z);
+
+        int xChunk = xCheck / VoxelData.ChunkWidth;
+        int zChunk = zCheck / VoxelData.ChunkWidth;
+
+        xCheck -= (xChunk * VoxelData.ChunkWidth);
+        zCheck -= (zChunk * VoxelData.ChunkWidth);
+
+        return blockTypes[allChunks[xChunk, zChunk].chunkMap[xCheck, yCheck, zCheck]].IsSolid;
     }
 
     /*
