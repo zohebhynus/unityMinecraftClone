@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc9bbfde2ba194d42b2bf40bf92de31a, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  BiomeName: Default
+  SolidGroundHeight: 42
+  TerrainHeight: 42
+  TerrainScale: 0.25
+  Lodes:
+  - LodeName: Dirt
+    BlockID: 5
+    MinHeight: 1
+    MaxHeight: 255
+    Scale: 0.1
+    Threshold: 0.5
+    Offset: 0
+  - LodeName: Sand
+    BlockID: 6
+    MinHeight: 30
+    MaxHeight: 60
+    Scale: 0.2
+    Threshold: 0.6
+    Offset: 500

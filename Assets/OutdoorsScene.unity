@@ -526,7 +526,7 @@ Transform:
   m_GameObject: {fileID: 1823688464}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 100, z: 0}
+  m_LocalPosition: {x: 800, y: 1000, z: 800}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -702,6 +702,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 1022455068}
   SpawnPoint: {x: 20, y: 0, z: 20}
+  Seed: 0
+  biome: {fileID: 11400000, guid: 7fa978b9ed6913e49945a258c221b235, type: 2}
   material: {fileID: 2100000, guid: 44d9dc8bba710ad47a15cd169cddb5c1, type: 2}
   blockTypes:
   - Name: Grass
@@ -736,6 +738,38 @@ MonoBehaviour:
     RightFaceTextureID: 0
     TopFaceTextureID: 0
     BottomFaceTextureID: 0
+  - Name: Bedrock
+    IsSolid: 1
+    FrontFaceTextureID: 9
+    BackFaceTextureID: 9
+    LeftFaceTextureID: 9
+    RightFaceTextureID: 9
+    TopFaceTextureID: 9
+    BottomFaceTextureID: 9
+  - Name: Dirt
+    IsSolid: 1
+    FrontFaceTextureID: 1
+    BackFaceTextureID: 1
+    LeftFaceTextureID: 1
+    RightFaceTextureID: 1
+    TopFaceTextureID: 1
+    BottomFaceTextureID: 1
+  - Name: Sand
+    IsSolid: 1
+    FrontFaceTextureID: 10
+    BackFaceTextureID: 10
+    LeftFaceTextureID: 10
+    RightFaceTextureID: 10
+    TopFaceTextureID: 10
+    BottomFaceTextureID: 10
+  - Name: Cobblestone
+    IsSolid: 1
+    FrontFaceTextureID: 8
+    BackFaceTextureID: 8
+    LeftFaceTextureID: 8
+    RightFaceTextureID: 8
+    TopFaceTextureID: 8
+    BottomFaceTextureID: 8
 --- !u!4 &2000520696
 Transform:
   m_ObjectHideFlags: 0

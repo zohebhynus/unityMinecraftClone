@@ -36,6 +36,7 @@ public class Chunk
         m_ChunkObject.name = ChunkCoord.x + ", " + ChunkCoord.y;
 
         GenerateChunkMap();
+        ChunkMeshFunctions();
     }
 
     public bool isActive
@@ -109,17 +110,6 @@ public class Chunk
             return true;
         }
     }
-    //bool isWithinChunk(int x, int y, int z)
-    //{
-    //    if (x < ChunkCoord.x || x > ChunkCoord.x + VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < ChunkCoord.y || z > ChunkCoord.y + VoxelData.ChunkWidth - 1)
-    //    {
-    //        return false;
-    //    }
-    //    else 
-    //    {
-    //        return true;
-    //    }
-    //}
 
     void GenerateChunkMap()
     {
