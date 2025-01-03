@@ -9,6 +9,7 @@ public class World : MonoBehaviour
     private Vector3 SpawnPoint;
     public int Seed;
     public BiomeAttributes biome;
+    public GameObject DebugMenuScreen;
 
     public Material material;
     public BlockType[] blockTypes;
@@ -43,6 +44,11 @@ public class World : MonoBehaviour
         if(chunksToCreate.Count > 0 && !isCreatingChunks)
         {
             StartCoroutine("CreateChunks");
+        }
+
+        if(Input.GetKeyDown(KeyCode.F3))
+        {
+            DebugMenuScreen.SetActive(!DebugMenuScreen.activeSelf);
         }
     }
 
