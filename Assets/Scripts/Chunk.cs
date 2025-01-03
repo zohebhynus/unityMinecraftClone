@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.LightTransport;
 
 public class Chunk
 {
@@ -17,21 +19,32 @@ public class Chunk
     private World m_World;
 
     public Vector2Int ChunkCoord;
+    private bool m_IsActive;
+    public bool isChunkMapPopulated = false;
 
 
-    public Chunk(Vector2Int chunkCoord, World world)
+    public Chunk(Vector2Int chunkCoord, World world, bool generateOnLoad)
     {
+        m_World = world;
         ChunkCoord = chunkCoord;
+
+        if(generateOnLoad)
+        {
+            Init();
+        }
+    }
+
+    public void Init()
+    {
         m_ChunkObject = new GameObject();
         // y coord is used as z
         m_ChunkObject.transform.position = new Vector3(ChunkCoord.x * VoxelData.ChunkWidth, 0.0f, ChunkCoord.y * VoxelData.ChunkWidth);
 
         m_Renderer = m_ChunkObject.AddComponent<MeshRenderer>();
         m_Filter = m_ChunkObject.AddComponent<MeshFilter>();
-        m_World = world;
 
-        m_ChunkObject.transform.SetParent(world.transform);
-        m_Renderer.material = world.material;
+        m_ChunkObject.transform.SetParent(m_World.transform);
+        m_Renderer.material = m_World.material;
 
         m_ChunkObject.name = ChunkCoord.x + ", " + ChunkCoord.y;
 
@@ -41,14 +54,34 @@ public class Chunk
 
     public bool isActive
     {
-        get { return m_ChunkObject.activeSelf; }
-        set { m_ChunkObject.SetActive(value); }
+        get { return m_IsActive; }
+        set 
+        {
+            m_IsActive = value;
+            if(m_ChunkObject != null)
+            {
+                m_ChunkObject.SetActive(value); 
+            }
+        }
     }
 
     public void ChunkMeshFunctions()
     {
         CreateChunkVertexData();
         CreateChunkMesh();
+    }
+
+    public byte GetVoxelFromGlobalVector3(Vector3 position)
+    {
+        int x = (int)position.x;
+        int y = (int)position.y;
+        int z = (int)position.z;
+
+        x -= Mathf.FloorToInt(m_ChunkObject.transform.position.x);
+        z -= Mathf.FloorToInt(m_ChunkObject.transform.position.z);
+
+
+        return chunkMap[x, y, z];
     }
 
     Vector3 Position 
@@ -93,7 +126,7 @@ public class Chunk
         }
         else
         {
-            return m_World.blockTypes[m_World.GetVoxel(position + Position)].IsSolid;
+            return m_World.CheckForVoxel(position + Position);
         }
         
     }
@@ -125,6 +158,7 @@ public class Chunk
                 }
             }
         }
+        isChunkMapPopulated = true;
     }
 
     private void CreateChunkMesh()
