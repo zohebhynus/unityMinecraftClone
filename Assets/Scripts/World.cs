@@ -131,6 +131,12 @@ public class World : MonoBehaviour
         return new Vector2Int(x, z);
     }
 
+    public Chunk GetChunkFromVector3(Vector3 position)
+    {
+        Vector2Int coord = getChunkCoordFromVector3(position);
+        return allChunks[coord.x, coord.y];
+    }
+
     public bool IsChunkCoordInWorld(Vector2Int chunkCoord)
     {
         if (chunkCoord.x >= 0 && chunkCoord.x < VoxelData.WorldWidthInChunks && chunkCoord.y >= 0 && chunkCoord.y < VoxelData.WorldWidthInChunks)

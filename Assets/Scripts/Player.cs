@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -23,15 +24,29 @@ public class Player : MonoBehaviour
     private Transform playerCam;
     private World world;
 
+    public Transform highlightBlock;
+    public Transform placeHighlightBlock;
+    public float checkIncrement = 0.1f;
+    public float reach = 8.0f;
+
+    public Text selectedBlockText;
+    public byte selectedBlockIndex = 1;
+
+    
+
     private void Start()
     {
         playerCam = GameObject.Find("Main Camera").transform;
         world = GameObject.Find("World").GetComponent<World>();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        selectedBlockText.text = world.blockTypes[selectedBlockIndex].Name;
     }
 
     private void Update()
     {
         GetPlayerInput();
+        CheckHighlightBlocks();
     }
 
     private void FixedUpdate()
@@ -107,6 +122,71 @@ public class Player : MonoBehaviour
         {
             startJump = true;
         }
+
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if(scroll != 0) 
+        {
+            // scroll 1 to blocktypes list length
+            if (scroll > 0) 
+            {
+                selectedBlockIndex++;
+            }
+            else
+            {
+                selectedBlockIndex--;
+            }
+            if (selectedBlockIndex > (byte)(world.blockTypes.Length - 1))
+            {
+                selectedBlockIndex = 1;
+            }
+            if (selectedBlockIndex < 1)
+            {
+                selectedBlockIndex = (byte)(world.blockTypes.Length - 1);
+            }
+
+            selectedBlockText.text = world.blockTypes[selectedBlockIndex].Name;
+        }
+
+        if (highlightBlock.gameObject.activeSelf) 
+        {
+            // destroying block
+            if(Input.GetMouseButtonDown(0)) 
+            {
+                world.GetChunkFromVector3(highlightBlock.position).EditVoxel(highlightBlock.position, 3);
+            }
+
+            // placing block
+            if (Input.GetMouseButtonDown(1))
+            {
+                world.GetChunkFromVector3(placeHighlightBlock.position).EditVoxel(placeHighlightBlock.position, selectedBlockIndex);
+            }
+        }
+    }
+
+    private void CheckHighlightBlocks()
+    {
+        float step = checkIncrement;
+        Vector3 lastPosition = new Vector3();
+
+        while(step < reach)
+        {
+            Vector3 lookPos = playerCam.position + (playerCam.forward * step);
+            if(world.CheckForVoxel(lookPos))
+            {
+                highlightBlock.position = new Vector3(Mathf.FloorToInt(lookPos.x), Mathf.FloorToInt(lookPos.y), Mathf.FloorToInt(lookPos.z));
+                placeHighlightBlock.position = lastPosition;
+
+                highlightBlock.gameObject.SetActive(true);
+                placeHighlightBlock.gameObject.SetActive(true);
+
+                return;
+            }
+            lastPosition = new Vector3(Mathf.FloorToInt(lookPos.x), Mathf.FloorToInt(lookPos.y), Mathf.FloorToInt(lookPos.z));
+            step += checkIncrement;
+        }
+
+        highlightBlock.gameObject.SetActive(false);
+        placeHighlightBlock.gameObject.SetActive(false);
     }
 
     private void HandleJump()

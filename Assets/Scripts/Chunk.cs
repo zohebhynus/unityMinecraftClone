@@ -49,7 +49,7 @@ public class Chunk
         m_ChunkObject.name = ChunkCoord.x + ", " + ChunkCoord.y;
 
         GenerateChunkMap();
-        ChunkMeshFunctions();
+        UpdateChunkVertexData();
     }
 
     public bool isActive
@@ -65,12 +65,6 @@ public class Chunk
         }
     }
 
-    public void ChunkMeshFunctions()
-    {
-        CreateChunkVertexData();
-        CreateChunkMesh();
-    }
-
     public byte GetVoxelFromGlobalVector3(Vector3 position)
     {
         int x = (int)position.x;
@@ -82,6 +76,37 @@ public class Chunk
 
 
         return chunkMap[x, y, z];
+    }
+
+    public void EditVoxel (Vector3 position, byte blockID)
+    {
+        int x = (int)position.x;
+        int y = (int)position.y;
+        int z = (int)position.z;
+
+        x -= Mathf.FloorToInt(m_ChunkObject.transform.position.x);
+        z -= Mathf.FloorToInt(m_ChunkObject.transform.position.z);
+
+        chunkMap[x, y, z] = blockID;
+
+        UpdateSurroundingVoxels(x, y, z);
+
+        UpdateChunkVertexData();
+    }
+
+    void UpdateSurroundingVoxels(int x, int y, int z)
+    {
+        Vector3 thisVoxel = new Vector3(x, y, z);
+
+        for (int i = 0; i < 6; i++)
+        {
+            Vector3 currentVoxel = thisVoxel + VoxelData.voxelNeighbours[i];
+
+            if (!isWithinChunk(Mathf.FloorToInt(currentVoxel.x), Mathf.FloorToInt(currentVoxel.y), Mathf.FloorToInt(currentVoxel.z)))
+            {
+                m_World.GetChunkFromVector3(currentVoxel + Position).UpdateChunkVertexData();
+            }
+        }
     }
 
     Vector3 Position 
@@ -177,8 +202,9 @@ public class Chunk
         m_Filter.mesh = mesh;
     }
 
-    void CreateChunkVertexData()
+    void UpdateChunkVertexData()
     {
+        ClearChunkVertexData();
 
         for (int x = 0; x < VoxelData.ChunkWidth; x++)
         {
@@ -193,6 +219,15 @@ public class Chunk
                 }
             }
         }
+        CreateChunkMesh();
+    }
+
+    void ClearChunkVertexData()
+    {
+        m_VertexIndex = 0;
+        m_Vertices.Clear();
+        m_Triangles.Clear();
+        m_Uvs.Clear();
     }
 
     void AddTexture(int textureID)
