@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
     public float checkIncrement = 0.1f;
     public float reach = 8.0f;
 
-    public Text selectedBlockText;
     public byte selectedBlockIndex = 1;
 
     
@@ -40,7 +39,6 @@ public class Player : MonoBehaviour
         world = GameObject.Find("World").GetComponent<World>();
 
         Cursor.lockState = CursorLockMode.Locked;
-        selectedBlockText.text = world.blockTypes[selectedBlockIndex].Name;
     }
 
     private void Update()
@@ -123,36 +121,12 @@ public class Player : MonoBehaviour
             startJump = true;
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if(scroll != 0) 
-        {
-            // scroll 1 to blocktypes list length
-            if (scroll > 0) 
-            {
-                selectedBlockIndex++;
-            }
-            else
-            {
-                selectedBlockIndex--;
-            }
-            if (selectedBlockIndex > (byte)(world.blockTypes.Length - 1))
-            {
-                selectedBlockIndex = 1;
-            }
-            if (selectedBlockIndex < 1)
-            {
-                selectedBlockIndex = (byte)(world.blockTypes.Length - 1);
-            }
-
-            selectedBlockText.text = world.blockTypes[selectedBlockIndex].Name;
-        }
-
         if (highlightBlock.gameObject.activeSelf) 
         {
             // destroying block
             if(Input.GetMouseButtonDown(0)) 
             {
-                world.GetChunkFromVector3(highlightBlock.position).EditVoxel(highlightBlock.position, 3);
+                world.GetChunkFromVector3(highlightBlock.position).EditVoxel(highlightBlock.position, 0);
             }
 
             // placing block

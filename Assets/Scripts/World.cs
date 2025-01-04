@@ -192,14 +192,16 @@ public class World : MonoBehaviour
     }
 
     /*
-     * Grass       : 0
-     * Stone       : 1
-     * Wood        : 2
-     * Air         : 3
-     * Bedrock     : 4
-     * Dirt        : 5
-     * Sand        : 6
-     * Cobblestone : 7 
+     * Air          : 0
+     * Stone        : 1
+     * Wood         : 2
+     * Grass        : 3
+     * Bedrock      : 4
+     * Dirt         : 5
+     * Sand         : 6
+     * Cobblestone  : 7 
+     * Brick        : 8
+     * Wooden Plank : 9
      */
     public byte GetVoxel(Vector3 position)
     {
@@ -209,7 +211,7 @@ public class World : MonoBehaviour
         {
             // If outside world, return air
             if (!IsVoxelInWorld(position))
-                return 3;
+                return 0;
 
             // If Bottom block of chunk, return bedrock
             if (yPosition == 0)
@@ -223,7 +225,7 @@ public class World : MonoBehaviour
             int terrainHeight = Mathf.FloorToInt(biome.TerrainHeight * Noise.Get2DPerlinNoise(new Vector2(position.x, position.z), 500, biome.TerrainScale)) + biome.SolidGroundHeight;
             if(yPosition == terrainHeight)
             {
-                voxelValue = 0;
+                voxelValue = 3;
             }
             else if(yPosition < terrainHeight && yPosition > terrainHeight - 4.0f)
             {
@@ -232,7 +234,7 @@ public class World : MonoBehaviour
             else if(yPosition > terrainHeight)
             {
                 // Air
-                return 3;
+                return 0;
             }
             else
             {
@@ -266,6 +268,7 @@ public class BlockType
 {
     public string Name;
     public bool IsSolid;
+    public Sprite icon;
 
 
     public int FrontFaceTextureID;
